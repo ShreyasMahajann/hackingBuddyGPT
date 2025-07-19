@@ -1,14 +1,14 @@
 from dataclasses import dataclass
-from typing import Tuple
+from typing import Tuple, Union
 
 from hackingBuddyGPT.utils import PSExecConnection
-
+from hackingBuddyGPT.utils.local_shell import LocalShellConnection
 from .capability import Capability
 
 
 @dataclass
 class PSExecRunCommand(Capability):
-    conn: PSExecConnection
+    conn: Union[PSExecConnection, LocalShellConnection]
 
     @property
     def describe(self) -> str:

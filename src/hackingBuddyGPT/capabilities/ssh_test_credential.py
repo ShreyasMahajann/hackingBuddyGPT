@@ -1,16 +1,17 @@
 from dataclasses import dataclass
-from typing import Tuple
+from typing import Tuple, Union
 from paramiko.ssh_exception import SSHException
 import paramiko
 
 from hackingBuddyGPT.utils import SSHConnection
-
+from hackingBuddyGPT.utils.local_shell import LocalShellConnection
 from .capability import Capability
 
 
 @dataclass
 class SSHTestCredential(Capability):
-    conn: SSHConnection
+    conn: Union[SSHConnection, LocalShellConnection]
+
 
     def describe(self) -> str:
         return "give credentials to be tested."
