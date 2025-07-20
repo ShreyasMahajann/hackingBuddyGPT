@@ -7,14 +7,15 @@ from hackingBuddyGPT.usecases.base import UseCase, use_case
 from hackingBuddyGPT.usecases.privesc.linux import LinuxPrivesc, LinuxPrivescUseCase
 from hackingBuddyGPT.utils import SSHConnection
 from hackingBuddyGPT.utils.openai.openai_llm import OpenAIConnection
-
+from hackingBuddyGPT.utils.local_shell import LocalShellConnection
+from typing import Union
 template_dir = pathlib.Path(__file__).parent
 template_lse = Template(filename=str(template_dir / "get_hint_from_lse.txt"))
 
 
 @use_case("Linux Privilege Escalation using lse.sh for initial guidance")
 class ExPrivEscLinuxLSEUseCase(UseCase):
-    conn: SSHConnection = None
+    conn: Union[SSHConnection, LocalShellConnection] = None
     max_turns: int = 20
     enable_explanation: bool = False
     enable_update_state: bool = False

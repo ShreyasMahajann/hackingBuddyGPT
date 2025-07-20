@@ -1,19 +1,21 @@
 import pathlib
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Union
 
 from hackingBuddyGPT.capabilities import SSHRunCommand, SSHTestCredential
 from hackingBuddyGPT.usecases.agents import AgentWorldview, TemplatedAgent
 from hackingBuddyGPT.usecases.base import AutonomousAgentUseCase, use_case
 from hackingBuddyGPT.utils import SSHConnection, llm_util
 from hackingBuddyGPT.utils.cli_history import SlidingCliHistory
+from hackingBuddyGPT.utils.local_shell import LocalShellConnection
+
 
 
 @dataclass
 class ExPrivEscLinuxTemplatedState(AgentWorldview):
     sliding_history: SlidingCliHistory
     max_history_size: int = 0
-    conn: SSHConnection = None
+    conn: Union[SSHConnection, LocalShellConnection] = None
 
     def __init__(self, conn, llm, max_history_size):
         self.sliding_history = SlidingCliHistory(llm)
@@ -28,7 +30,7 @@ class ExPrivEscLinuxTemplatedState(AgentWorldview):
 
 
 class ExPrivEscLinuxTemplated(TemplatedAgent):
-    conn: SSHConnection = None
+    conn: Union[SSHConnection, LocalShellConnection] = None
 
     def init(self):
         super().init()

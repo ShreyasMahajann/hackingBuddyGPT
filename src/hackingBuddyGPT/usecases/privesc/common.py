@@ -38,17 +38,42 @@ class Privesc(Agent):
         if self.disable_history is False:
             self._sliding_history = SlidingCliHistory(self.llm)
 
+        # Ensure LocalShellConnection has SSH connection attributes for template compatibility
+        if hasattr(self.conn, 'pid'):
+            # Add missing attributes that SSH templates expect
+            if not hasattr(self.conn, 'username'):
+                self.conn.username = self.get_connection_username()
+            if not hasattr(self.conn, 'password'):
+                self.conn.password = ""  # Local shell doesn't need password
+            if not hasattr(self.conn, 'host'):
+                self.conn.host = "localhost"  # Local connection
+            if not hasattr(self.conn, 'hostname'):
+                self.conn.hostname = "localhost"
+            if not hasattr(self.conn, 'port'):
+                self.conn.port = None  # Not applicable for local shell
+            if not hasattr(self.conn, 'keyfilename'):
+                self.conn.keyfilename = ""  # No key file for local shell
+
         self._template_params = {
             "capabilities": self.get_capability_block(),
             "system": self.system,
             "hint": self.hint,
             "conn": self.conn,
             "update_state": self.enable_update_state,
-            "target_user": "root",
+            "target_user": self.get_connection_username(),
         }
 
         template_size = self.llm.count_tokens(template_next_cmd.source)
         self._max_history_size = self.llm.context_size - llm_util.SAFETY_MARGIN - template_size
+
+    def get_connection_username(self):
+        """Get username from connection, with fallback for LocalShellConnection"""
+        if hasattr(self.conn, 'username'):
+            return self.conn.username
+        else:
+            # For LocalShellConnection, use the configured username or current user
+            import getpass
+            return getpass.getuser()
 
     def perform_round(self, turn: int) -> bool:
         # get the next command and run it

@@ -8,13 +8,14 @@ from hackingBuddyGPT.usecases.agents import Agent
 from hackingBuddyGPT.usecases.base import AutonomousAgentUseCase, use_case
 from hackingBuddyGPT.utils import SSHConnection, llm_util
 from hackingBuddyGPT.utils.cli_history import SlidingCliHistory
-
+from hackingBuddyGPT.utils.local_shell import LocalShellConnection
+from typing import Union
 template_dir = pathlib.Path(__file__).parent
 template_next_cmd = Template(filename=str(template_dir / "next_cmd.txt"))
 
 
 class ExPrivEscLinux(Agent):
-    conn: SSHConnection = None
+    conn: Union[SSHConnection, LocalShellConnection] = None
 
     _sliding_history: SlidingCliHistory = None
     _max_history_size: int = 0
