@@ -10,6 +10,9 @@ from hackingBuddyGPT.usecases.agents import Agent
 from hackingBuddyGPT.utils.logging import log_section, log_conversation
 from hackingBuddyGPT.utils import llm_util
 from hackingBuddyGPT.utils.cli_history import SlidingCliHistory
+from hackingBuddyGPT.utils.local_shell import LocalShellConnection
+from hackingBuddyGPT.capabilities.local_shell import LocalShellCapability
+
 
 template_dir = pathlib.Path(__file__).parent / "templates"
 template_next_cmd = Template(filename=str(template_dir / "query_next_command.txt"))
@@ -35,24 +38,22 @@ class Privesc(Agent):
         if self.hint != "":
             self.log.status_message(f"[bold green]Using the following hint: '{self.hint}'")
 
-        if self.disable_history is False:
+        if not self.disable_history:
             self._sliding_history = SlidingCliHistory(self.llm)
 
-        # Ensure LocalShellConnection has SSH connection attributes for template compatibility
-        if hasattr(self.conn, 'pid'):
-            # Add missing attributes that SSH templates expect
+        if hasattr(self.conn, 'tmux_session'):
             if not hasattr(self.conn, 'username'):
                 self.conn.username = self.get_connection_username()
             if not hasattr(self.conn, 'password'):
-                self.conn.password = ""  # Local shell doesn't need password
+                self.conn.password = ""
             if not hasattr(self.conn, 'host'):
-                self.conn.host = "localhost"  # Local connection
+                self.conn.host = "localhost"
             if not hasattr(self.conn, 'hostname'):
                 self.conn.hostname = "localhost"
             if not hasattr(self.conn, 'port'):
-                self.conn.port = None  # Not applicable for local shell
+                self.conn.port = None
             if not hasattr(self.conn, 'keyfilename'):
-                self.conn.keyfilename = ""  # No key file for local shell
+                self.conn.keyfilename = ""
 
         self._template_params = {
             "capabilities": self.get_capability_block(),
@@ -66,6 +67,9 @@ class Privesc(Agent):
         template_size = self.llm.count_tokens(template_next_cmd.source)
         self._max_history_size = self.llm.context_size - llm_util.SAFETY_MARGIN - template_size
 
+
+            
+        
     def get_connection_username(self):
         """Get username from connection, with fallback for LocalShellConnection"""
         if hasattr(self.conn, 'username'):
