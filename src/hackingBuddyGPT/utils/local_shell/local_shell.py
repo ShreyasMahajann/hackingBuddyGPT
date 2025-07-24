@@ -178,7 +178,6 @@ class LocalShellConnection:
             
             # Extract content between markers
             result = self._extract_between_markers(final_output, start_marker, end_marker, command)
-            print(result)
             return result
             
         except Exception as e:

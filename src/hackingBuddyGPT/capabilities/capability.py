@@ -184,7 +184,9 @@ def capabilities_to_simple_text_handler(
                 if not success:
                     return False, parsing_result
 
-            return True, (capability_name, params, default_capability(**parsing_result))
+            # Fix: Get the capability name from the default capability itself
+            default_capability_name = default_capability.get_name()
+            return True, (default_capability_name, params, default_capability(**parsing_result))
 
         resolved_parser = default_capability_parser
 

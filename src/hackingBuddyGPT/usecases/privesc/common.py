@@ -41,7 +41,8 @@ class Privesc(Agent):
         if not self.disable_history:
             self._sliding_history = SlidingCliHistory(self.llm)
 
-        if hasattr(self.conn, 'tmux_session'):
+        # Handle LocalShellConnection attributes
+        if isinstance(self.conn, LocalShellConnection):
             if not hasattr(self.conn, 'username'):
                 self.conn.username = self.get_connection_username()
             if not hasattr(self.conn, 'password'):
@@ -133,6 +134,7 @@ class Privesc(Agent):
         assert len(output) == 1
         capability, cmd, (result, got_root) = output[0]
         duration = datetime.datetime.now() - start_time
+        
         self.log.add_tool_call(message_id, tool_call_id=0, function_name=capability, arguments=cmd, result_text=result, duration=duration)
 
         return result, got_root

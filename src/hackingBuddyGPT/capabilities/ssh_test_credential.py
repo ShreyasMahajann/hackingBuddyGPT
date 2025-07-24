@@ -4,13 +4,12 @@ from paramiko.ssh_exception import SSHException
 import paramiko
 
 from hackingBuddyGPT.utils import SSHConnection
-from hackingBuddyGPT.utils.local_shell import LocalShellConnection
 from .capability import Capability
 
 
 @dataclass
 class SSHTestCredential(Capability):
-    conn: Union[SSHConnection, LocalShellConnection]
+    conn: SSHConnection
 
 
     def describe(self) -> str:
