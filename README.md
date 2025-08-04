@@ -11,6 +11,9 @@ HackingBuddyGPT helps security researchers use LLMs to discover new attack vecto
 
 **🆕 New Feature**: hackingBuddyGPT now supports both SSH connections to remote targets and local shell execution for easier testing and development!
 
+**⚠️ WARNING**: This software will execute commands on live environments. When using local shell mode, commands will be executed on your local system, which could potentially lead to data loss, system modification, or security vulnerabilities. Always use appropriate precautions and consider using isolated environments or virtual machines for testing.
+
+
 We aim to become **THE go-to framework for security researchers** and pen-testers interested in using LLMs or LLM-based autonomous agents for security testing. To aid their experiments, we also offer re-usable [linux priv-esc benchmarks](https://github.com/ipa-lab/benchmark-privesc-linux) and publish all our findings as open-access reports.
 
 If you want to use hackingBuddyGPT and need help selecting the best LLM for your tasks, [we have a paper comparing multiple LLMs](https://arxiv.org/abs/2310.11409).
