@@ -10,9 +10,6 @@ from hackingBuddyGPT.usecases.agents import Agent
 from hackingBuddyGPT.utils.logging import log_section, log_conversation
 from hackingBuddyGPT.utils import llm_util
 from hackingBuddyGPT.utils.cli_history import SlidingCliHistory
-from hackingBuddyGPT.utils.local_shell import LocalShellConnection
-from hackingBuddyGPT.capabilities.local_shell import LocalShellCapability
-
 
 template_dir = pathlib.Path(__file__).parent / "templates"
 template_next_cmd = Template(filename=str(template_dir / "query_next_command.txt"))
@@ -38,23 +35,8 @@ class Privesc(Agent):
         if self.hint != "":
             self.log.status_message(f"[bold green]Using the following hint: '{self.hint}'")
 
-        if not self.disable_history:
+        if self.disable_history is False:
             self._sliding_history = SlidingCliHistory(self.llm)
-
-        # Handle LocalShellConnection attributes
-        if isinstance(self.conn, LocalShellConnection):
-            if not hasattr(self.conn, 'username'):
-                self.conn.username = self.get_connection_username()
-            if not hasattr(self.conn, 'password'):
-                self.conn.password = ""
-            if not hasattr(self.conn, 'host'):
-                self.conn.host = "localhost"
-            if not hasattr(self.conn, 'hostname'):
-                self.conn.hostname = "localhost"
-            if not hasattr(self.conn, 'port'):
-                self.conn.port = None
-            if not hasattr(self.conn, 'keyfilename'):
-                self.conn.keyfilename = ""
 
         self._template_params = {
             "capabilities": self.get_capability_block(),
@@ -62,23 +44,11 @@ class Privesc(Agent):
             "hint": self.hint,
             "conn": self.conn,
             "update_state": self.enable_update_state,
-            "target_user": self.get_connection_username(),
+            "target_user": "root",
         }
 
         template_size = self.llm.count_tokens(template_next_cmd.source)
         self._max_history_size = self.llm.context_size - llm_util.SAFETY_MARGIN - template_size
-
-
-            
-        
-    def get_connection_username(self):
-        """Get username from connection, with fallback for LocalShellConnection"""
-        if hasattr(self.conn, 'username'):
-            return self.conn.username
-        else:
-            # For LocalShellConnection, use the configured username or current user
-            import getpass
-            return getpass.getuser()
 
     def perform_round(self, turn: int) -> bool:
         # get the next command and run it
@@ -134,7 +104,6 @@ class Privesc(Agent):
         assert len(output) == 1
         capability, cmd, (result, got_root) = output[0]
         duration = datetime.datetime.now() - start_time
-        
         self.log.add_tool_call(message_id, tool_call_id=0, function_name=capability, arguments=cmd, result_text=result, duration=duration)
 
         return result, got_root

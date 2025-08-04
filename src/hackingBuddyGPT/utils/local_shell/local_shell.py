@@ -5,6 +5,7 @@ import uuid
 import subprocess
 import re
 import signal
+import getpass
 
 from hackingBuddyGPT.utils.configurable import configurable
 
@@ -14,6 +15,14 @@ class LocalShellConnection:
     tmux_session: str = field(metadata={"help": "tmux session name of the running shell inside tmux"})
     delay: float = field(default=0.5, metadata={"help": "delay between commands"})
     max_wait: int = field(default=300, metadata={"help": "maximum wait time for command completion"})
+    
+    # Static attributes for connection info
+    username: str = field(default_factory=getpass.getuser, metadata={"help": "username for the connection"})
+    password: str = field(default="", metadata={"help": "password for the connection"})
+    host: str = field(default="localhost", metadata={"help": "host for the connection"})
+    hostname: str = field(default="localhost", metadata={"help": "hostname for the connection"})
+    port: Optional[int] = field(default=None, metadata={"help": "port for the connection"})
+    keyfilename: str = field(default="", metadata={"help": "key filename for the connection"})
     
     # Internal state
     last_output_hash: Optional[int] = field(default=None, init=False)
@@ -324,4 +333,3 @@ class LocalShellConnection:
         except subprocess.CalledProcessError:
             return "Session info unavailable"
 
-    
